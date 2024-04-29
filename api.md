@@ -229,4 +229,221 @@ _Note:_
 
 ### Get post by id
 
+`GET /api/posts/<post_id>/`
+
 Response:
+
+```json
+{
+    "id": <ID>,
+    "title": <TITLE>,
+    "item" <ITEM>:,
+    "status": <STATUS>,
+    "text": <TEXT>,
+    "location": <LOCATION>,
+    "timestamp": <TIMESTAMP>,
+    "user_id" <USER_ID>:
+}
+```
+
+### Create post
+
+`POST /api/posts/`
+
+Request:
+
+```json
+{
+    "title": <USER INPUT>,
+    "item": <USER INPUT>,
+    "status": <USER INPUT>,
+    "text": <USER INPUT (OPTIONAL)>,
+    "location": <USER INPUT>,
+}
+```
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "title": <USER INPUT>,
+    "item": <USER INPUT>,
+    "status": <USER INPUT>,
+    "text": <USER INPUT OR NULL IF NOT PROVIDED>,
+    "location": <USER INPUT>,
+    "timestamp": <NOW>,
+    "user_id": <USER_ID>
+}
+```
+
+_Note:_
+
+- Timestamp is the string representation of the DateTime object at the time the post is created.
+
+### Edit post
+
+`POST /api/posts/<post_id>/`
+
+Request:
+
+```json
+{
+    "title": <USER INPUT (OPTIONAL)>,
+    "item": <USER INPUT (OPTIONAL)>,
+    "status": <USER INPUT (OPTIONAL)>,
+    "text": <USER INPUT (OPTIONAL)>,
+    "location": <USER INPUT (OPTIONAL)>,
+}
+```
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "title": <USER INPUT OR PREVIOUS TITLE IF NOT PROVIDED>,
+    "item": <USER INPUT OR PREVIOUS ITEM IF NOT PROVIDED>,
+    "status": <USER INPUT OR PREVIOUS STATUS IF NOT PROVIDED>,
+    "text": <USER INPUT OR PREVIOUS TEXT IF NOT PROVIDED>,
+    "location": <USER INPUT OR PREVIOUS LOCATION IF NOT PROVIDED>,
+    "timestamp": <ORIGINAL TIMESTAMP>,
+    "user_id": <USER_ID>
+}
+```
+
+### Delete post
+
+`DELETE /api/posts/<post_id>/`
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "title": <TITLE>,
+    "item": <ITEM>,
+    "status": <STATUS>,
+    "text": <TEXT>,
+    "location": <LOCATION>,
+    "timestamp": <TIMESTAMP>,
+    "user_id": <USER_ID>
+}
+```
+
+## Conversation Endpoints
+
+### Get conversation by id
+
+`GET /api/users/<user_id>/convos/<conversation_id>/`
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "user1_messages": [<SERIALIZED MESSAGE>],
+    "user2_messages": [<SERIALIZED MESSAGE>],
+    "user1_id": <USER1_ID>,
+    "user2_id": <USER2_ID>
+}
+```
+
+_Note:_
+
+- User1_id is the ID of the user that first made the conversation
+- User2_id is the ID of the user that <user_id> is messaging
+
+### Create conversation
+
+`POST /api/users/<user_id>/convos/`
+
+Request:
+
+```json
+{
+    "username": <USER INPUT>
+}
+```
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "user1_messages": [],
+    "user2_messages": [],
+    "user1_id": <user_id>,
+    "user2_id": <ID OF USER INPUT>
+}
+```
+
+### Delete conversation
+
+`DELETE /api/users/<user_id>/convos/<conversation_id>/`
+
+Response:
+
+```json
+{
+    "id": <conversation_id>,
+    "user1_messages": [<SERIALIZED MESSAGE>],
+    "user2_messages": [<SERIALIZED MESSAGE>],
+    "user1_id": <USER1_ID>,
+    "user2_id": <USER2_ID>
+}
+```
+
+## Message Endpoints
+
+### Send message
+
+`POST /api/users/<user_id>/convos/<conversation_id>/`
+
+Request:
+
+```json
+{
+    "receiver": <USER INPUT (USERNAME)>,
+    "content": <USER INPUT>,
+}
+```
+
+Response:
+
+```json
+{
+    "id": <ID>,
+    "sender_id": <user_id>,
+    "receiver_id": <receiver_id>,
+    "content": <USER INPUT>,
+    "timestamp": <NOW>,
+    "conversation_id": <conversation_id>
+}
+```
+
+_Note:_
+
+- Timestamp is the string representation of the DateTime object at the time the message is created.
+
+### Get all messages
+
+`GET /api/users/<user_id>/convos/<conversation_id>/messages/`
+
+Response:
+
+```json
+{
+    "messages": [
+        {
+            "id": <ID>,
+            "sender_id": <SENDER_ID>,
+            "receiver_id": <RECEIVER_ID>,
+            "content": <CONTENT>,
+            "timestamp": <NOW>,
+            "conversation_id": <CONVERSATION_ID>
+        },
+        ...
+    ]
+}
+```
