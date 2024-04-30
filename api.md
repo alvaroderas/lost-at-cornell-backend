@@ -333,6 +333,27 @@ Response:
 
 ## Conversation Endpoints
 
+### Get all conversations by user
+
+`GET /api/users/<user_id>/convos/`
+
+Response:
+
+```json
+{
+    "conversations": [
+        {
+            "id": <ID>,
+            "user1_messages": [<SERIALIEZD MESSAGE>],
+            "user2_messages": [<SERIALIZED MESSAGE>],
+            "user1_id": <USER1_ID>,
+            "user2_id": <USER2_ID>
+        },
+        ...
+    ]
+}
+```
+
 ### Get conversation by id
 
 `GET /api/users/<user_id>/convos/<conversation_id>/`
