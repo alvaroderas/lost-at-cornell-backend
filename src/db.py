@@ -78,7 +78,7 @@ class User(db.Model):
             "name": self.name,
             "username": self.username,
             "email": self.email,
-            "posts": [p.simple_serialize() for p in self.posts],
+            "posts": [p.serialize() for p in self.posts],
             "conversations": [c.serialize() for c in self.conversations]
         }
     
@@ -121,7 +121,7 @@ class Post(db.Model):
             "status": self.status,
             "text": self.text,
             "location": self.location,
-            "timestamp": self.timestamp,
+            "timestamp": str(self.timestamp),
             "user_id": self.user_id
         }
 
@@ -189,6 +189,6 @@ class Message(db.Model):
             "sender_id": self.sender_id,
             "receiver_id": self.receiver_id,
             "content": self.content,
-            "timestamp": self.timestamp,
+            "timestamp": str(self.timestamp),
             "conversation_id": self.conversation_id
         }
