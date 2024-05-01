@@ -136,12 +136,12 @@ Response:
 
 `POST /api/users/edit/`
 
-Request:
-
 Request Header:
 | Key | Value |
 | ------------ | ------------------------ |
 | Authorization| Bearer <session_token> |
+
+Request:
 
 ```json
 {
@@ -260,12 +260,12 @@ Response:
 
 `POST /api/posts/`
 
-Request:
-
 Request Header:
 | Key | Value |
 | ------------ | ------------------------ |
 | Authorization| Bearer <session_token> |
+
+Request:
 
 ```json
 {
@@ -300,12 +300,12 @@ _Note:_
 
 `POST /api/posts/<post_id>/`
 
-Request:
-
 Request Header:
 | Key | Value |
 | ------------ | ------------------------ |
 | Authorization| Bearer <session_token> |
+
+Request:
 
 ```json
 {
