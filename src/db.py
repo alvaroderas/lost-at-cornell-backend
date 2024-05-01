@@ -6,6 +6,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+association_table = db.Table(
+    "association",
+    db.Model.metadata,
+    db.Column("user_id", db.Integer, db.ForeignKey("users.id")),
+    db.Column("conversation_id", db.Integer, db.ForeignKey("conversations.id"))
+)
+
 class User(db.Model):
     """
     User model
@@ -19,7 +26,7 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     password_digest = db.Column(db.String, nullable=False)
     posts = db.relationship("Post", cascade="delete")
-    conversations = db.relationship("Conversation", cascade="delete")
+    conversations = db.relationship("Conversation", secondary=association_table, back_populates="users")
     # pfp
 
     # Session information
@@ -41,7 +48,7 @@ class User(db.Model):
         """
         Randomly generates session and refreshes tokens
         """
-        return hashlib.shal(os.urandom(64)).hexdigest()
+        return hashlib.sha1(os.urandom(64)).hexdigest()
     
     def renew_session(self):
         """
@@ -137,6 +144,7 @@ class Conversation(db.Model):
     messages = db.relationship("Message", cascade="delete")
     user1_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user2_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    users = db.relationship("User", secondary=association_table, back_populates="conversations")
 
     def __init__(self, **kwargs):
         """
