@@ -138,6 +138,11 @@ Response:
 
 Request:
 
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
 ```json
 {
     "name": <USER INPUT (OPTIONAL)>,
@@ -167,6 +172,11 @@ _Note:_
 ### Delete user
 
 `DELETE /api/users/delete/`
+
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
 
 Response:
 
@@ -252,6 +262,11 @@ Response:
 
 Request:
 
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
 ```json
 {
     "title": <USER INPUT>,
@@ -287,6 +302,11 @@ _Note:_
 
 Request:
 
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
 ```json
 {
     "title": <USER INPUT (OPTIONAL)>,
@@ -315,6 +335,11 @@ Response:
 ### Delete post
 
 `DELETE /api/posts/<post_id>/`
+
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
 
 Response:
 
@@ -379,6 +404,11 @@ _Note:_
 
 `POST /api/users/<user_id>/convos/`
 
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
 Request:
 
 ```json
@@ -403,6 +433,11 @@ Response:
 
 `DELETE /api/users/<user_id>/convos/<conversation_id>/`
 
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
 Response:
 
 ```json
@@ -420,6 +455,11 @@ Response:
 ### Send message
 
 `POST /api/users/<user_id>/convos/<conversation_id>/`
+
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
 
 Request:
 
@@ -466,5 +506,39 @@ Response:
         },
         ...
     ]
+}
+```
+
+### Get all messages from logged in user
+
+`GET /api/users/<user_id>/convos/<conversation_id>/user/`
+
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
+Response:
+
+```json
+{
+    "messages": [<SERIALIZED MESSAGE>]
+}
+```
+
+### Get all messages from other user
+
+`GET /api/users/<user_id>/convos/<conversation_id>/other/`
+
+Request Header:
+| Key | Value |
+| ------------ | ------------------------ |
+| Authorization| Bearer <session_token> |
+
+Response:
+
+```json
+{
+    "messages": [<SERIALIZED MESSAGE>]
 }
 ```
