@@ -108,7 +108,7 @@ def logout():
     db.session.commit()
     return success_response({"message": "You have been logged out"})
 
-@app.route("/api/users/refresh/", methods=["POST"])
+@app.route("/api/users/session/", methods=["POST"])
 def renew_session():
     """
     Endpoint for renewing a session
@@ -208,3 +208,122 @@ def get_posts_by_user(user_id):
         return failure_response("User not found")
     return success_response({"posts": [p.serialize() for p in user.posts]})
 
+@app.route("/api/posts/")
+def get_all_posts():
+    """
+    Endpoint for getting all posts
+    """
+    return success_response({"posts": [p.serialize() for p in Post.query.all()]})
+
+@app.route("/api/posts/<int:post_id>/")
+def get_post(post_id):
+    """
+    Endpoint for getting a post by id
+    """
+    post = Post.query.filter_by(id=post_id).first()
+    if post is None:
+        return failure_response("Post not found")
+    return success_response(post.serialize())
+
+@app.route("/api/posts/", methods=["POST"])
+def create_post():
+    """
+    Endpoint for creating a post
+    """
+    body = json.loads(request.data)
+    title = body.get("title")
+    item = body.get("item")
+    status = body.get("status")
+    text = body.get("text")
+    location = body.get("location")
+    timestamp = datetime.datetime.now()
+
+    if title is None or item is None or status is None or text is None or location is None:
+        return failure_response("Invalid body", 400)
+    
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    post = Post(
+        title=title,
+        item=item,
+        status=status,
+        text=text,
+        location=location,
+        timestamp=timestamp,
+        user_id=user.id
+    )
+    db.session.add(post)
+    db.session.commit()
+    return success_response(post.serialize(), 201)
+
+@app.route("/api/posts/<int:post_id>/", methods=["POST"])
+def edit_post(post_id):
+    """
+    Endpoint for editing a post by id
+    """
+    body = json.loads(request.data)
+    title = body.get("title")
+    item = body.get("item")
+    status = body.get("status")
+    text = body.get("text")
+    location = body.get("location")
+
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+
+    post = Post.query.filter_by(id=post_id).first()
+    if post is None:
+        return failure_response("Post not found")
+    
+    if post.user_id != user.id:
+        return failure_response("Unauthorized", 401)
+    
+    if title is not None:
+        post.title = title
+    if item is not None:
+        post.item = item
+    if status is not None:
+        post.status = status
+    if text is not None:
+        post.text = text
+    if location is not None:
+        post.location = location
+    db.session.commit()
+    return success_response(post.serialize())
+
+@app.route("/api/posts/<int:post_id>/", methods=["DELETE"])
+def delete_post(post_id):
+    """
+    Endpoint for deleting a post by id
+    """
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    post = Post.query.filter_by(id=post_id).first()
+    if post is None:
+        return failure_response("Post not found")
+    if post.user_id != user.id:
+        return failure_response("Unauthorized", 401)
+    
+    db.session.delete(post)
+    db.session.commit()
+    return success_response(post.serialize())
