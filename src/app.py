@@ -327,3 +327,195 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return success_response(post.serialize())
+
+# Conversation routes
+
+@app.route("/api/users/<int:user_id>/convos/")
+def get_conversations_by_user(user_id):
+    """
+    Endpoint for getting all conversations by user by id
+    """
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return failure_response("User not found")
+    return success_response({"conversations": [c.serialize() for c in user.conversations]})
+
+@app.route("/api/users/convos/<int:convo_id>/")
+def get_conversation(convo_id):
+    """
+    Endpoint for getting a conversation by id
+    """
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    return success_response(conversation.serialize())
+
+@app.route("/api/users/convos/", methods=["POST"])
+def create_conversation():
+    """
+    Endpoint for creating a conversation
+    """
+    body = json.loads(request.data)
+    username = body.get("username")
+    user2 = User.query.filter_by(username=username).first()
+    if user2 is None:
+        return failure_response("User not found")
+    
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    conversation = Conversation(
+        user1_id=user.id,
+        user2_id=user2.id
+    )
+
+    db.session.add(conversation)
+    db.session.commit()
+    return success_response(conversation.serialize(), 201)
+
+@app.route("/api/users/convos/<int:convo_id>/", methods=["DELETE"])
+def delete_conversation(convo_id):
+    """
+    Endpoint for deleting a conversation by id
+    """
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    
+    db.session.delete(conversation)
+    db.session.commit()
+    return success_response(conversation.serialize())
+
+# Message routes
+
+@app.route("/api/users/convos/<int:convo_id>/messages/", methods=["POST"])
+def send_message(convo_id):
+    """
+    Endpoint for sending a message
+    """
+    body = json.loads(request.data)
+    receiver = body.get("receiver")
+    content = body.get("content")
+    timestamp = datetime.datetime.now()
+
+    if receiver is None or content is None:
+        return failure_response("Invalid body", 400)
+    
+    receiver_user = User.query.filter_by(username=receiver).first()
+
+    if receiver_user is None:
+        return failure_response("Receiver not found")
+    
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    if user.id != conversation.user1_id and user.id != conversation.user2_id:
+        return failure_response("User not in conversation")
+    
+    
+    message = Message(
+        sender_id=user.id,
+        receiver_id=receiver.id,
+        content=content,
+        timestamp=timestamp,
+        conversation_id=convo_id
+    )
+
+    if user.id == conversation.user1_id:
+        conversation.user1_messages.append(message)
+    else:
+        conversation.user2_messages.append(message)
+
+    db.session.add(message)
+    db.session.commit()
+    return success_response(message.serialize(), 201)
+
+@app.route("/api/users/convos/<int:convo_id>/messages/")
+def get_messages(convo_id):
+    """
+    Endpoint for getting all messages in a conversation
+    """
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    return success_response({
+        "messages": [m.serialize() for m in Message.query.filter_by(conversation_id=convo_id).all()]
+    })
+
+@app.route("/api/users/convos/<int:convo_id>/user/")
+def get_messages_from_logged_in_user(convo_id):
+    """
+    Endpoint for getting all messages by the current logged in
+    user in the conversation
+    """
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    
+    if user.id != conversation.user1_id and user.id != conversation.user2_id:
+        return failure_response("User not in conversation")
+    
+    if user.id == conversation.user1_id:
+        return success_response({
+            "messages": [m.serialize() for m in conversation.user1_messages]
+        })
+    else:
+        return success_response({
+            "messages": [m.serialize() for m in conversation.user2_messages]
+        })
+
+@app.route("/api/users/convos/<int:convo_id>/other/")
+def get_messages_from_other_user(convo_id):
+    """
+    Endpoint for getting all messages by the other user in the
+    conversation
+    """
+    success, response = extract_token(request)
+    if not success:
+        return response
+    session_token = response
+
+    user = users_dao.get_user_by_session_token(session_token)
+    if not user or not user.verify_session_token(session_token):
+        return failure_response("Invalid session token")
+    
+    conversation = Conversation.query.filter_by(id=convo_id).first()
+    if conversation is None:
+        return failure_response("Conversation not found")
+    
+    if user.id != conversation.user1_id and user.id != conversation.user2_id:
+        return failure_response("User not in conversation")
+    
+    if user.id == conversation.user1_id:
+        return success_response({
+            "messages": [m.serialize() for m in conversation.user2_messages]
+        })
+    else:
+        return success_response({
+            "messages": [m.serialize() for m in conversation.user1_messages]
+        })
