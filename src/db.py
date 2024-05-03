@@ -36,6 +36,7 @@ class User(db.Model):
     password_digest = db.Column(db.String, nullable=False)
     posts = db.relationship("Post", cascade="delete")
     conversations = db.relationship("Conversation", secondary=association_table, back_populates="users")
+    pfp_id = db.Column(db.Integer, db.ForeignKey("asset.id"), nullable=True)
     pfp = db.relationship("Asset", cascade="delete")
 
     # Session information
@@ -89,15 +90,29 @@ class User(db.Model):
         """
         Serializes a User object without password
         """
-        return {
-            "id": self.id,
-            "name": self.name,
-            "username": self.username,
-            "email": self.email,
-            "pfp": self.pfp.serialize(),
-            "posts": [p.serialize() for p in self.posts],
-            "conversations": [c.serialize() for c in self.conversations]
-        }
+        pfp_url = None
+        if self.pfp is not None:
+            pfp_url = self.pfp.serialize()["url"]
+        
+        if self.pfp is None:
+            return {
+                "id": self.id,
+                "name": self.name,
+                "username": self.username,
+                "email": self.email,
+                "posts": [p.serialize() for p in self.posts],
+                "conversations": [c.serialize() for c in self.conversations]
+            }
+        else:
+            return {
+                "id": self.id,
+                "name": self.name,
+                "username": self.username,
+                "email": self.email,
+                "pfp": pfp_url,
+                "posts": [p.serialize() for p in self.posts],
+                "conversations": [c.serialize() for c in self.conversations]
+            }
     
 
 class Post(db.Model):
@@ -108,6 +123,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String, nullable=False)
     image = db.relationship("Asset", cascade="delete")
+    image_id = db.Column(db.Integer, db.ForeignKey("asset.id"), nullable=True)
     item = db.Column(db.String, nullable=False)
     status = db.Column(db.String, nullable=False)
     text = db.Column(db.String, nullable=True)
@@ -131,17 +147,33 @@ class Post(db.Model):
         """
         Serialize a Post object
         """
-        return {
-            "id": self.id,
-            "title": self.title,
-            "image": self.image.serialize(),
-            "item": self.item,
-            "status": self.status,
-            "text": self.text,
-            "location": self.location,
-            "timestamp": str(self.timestamp),
-            "user_id": self.user_id
-        }
+        image_url = None
+        if self.image is not None:
+            image_url = self.image.serialize()["url"]
+            
+        if self.image is None:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "item": self.item,
+                "status": self.status,
+                "text": self.text,
+                "location": self.location,
+                "timestamp": str(self.timestamp),
+                "user_id": self.user_id
+            }
+        else:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "image": image_url,
+                "item": self.item,
+                "status": self.status,
+                "text": self.text,
+                "location": self.location,
+                "timestamp": str(self.timestamp),
+                "user_id": self.user_id
+            }
 
 
 class Conversation(db.Model):
