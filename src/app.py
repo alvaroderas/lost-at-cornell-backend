@@ -1,5 +1,5 @@
 import json
-from db import db, User, Post, Conversation, Message
+from db import db, User, Post, Conversation, Message, Asset
 from flask import Flask, request
 import users_dao
 import datetime
@@ -167,6 +167,7 @@ def edit_user():
     username = body.get("username")
     email = body.get("email")
     password = body.get("password")
+    pfp = body.get("pfp")
     if name is not None:
         user.name = name
     if username is not None:
@@ -175,6 +176,10 @@ def edit_user():
         user.email = email
     if password is not None:
         user.password_digest = bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt(rounds=13))
+    if pfp is not None:
+        asset = Asset(image_data=pfp)
+        user.pfp = asset
+        db.session.add(asset)
     db.session.commit()
     return success_response(user.serialize())
     
@@ -232,6 +237,7 @@ def create_post():
     """
     body = json.loads(request.data)
     title = body.get("title")
+    image = body.get("image")
     item = body.get("item")
     status = body.get("status")
     text = body.get("text")
@@ -240,6 +246,10 @@ def create_post():
 
     if title is None or item is None or status is None or text is None or location is None:
         return failure_response("Invalid body", 400)
+    
+    if image is not None:
+        asset = Asset(image_data=image)
+        db.session.add(asset)
     
     success, response = extract_token(request)
     if not success:
@@ -250,15 +260,30 @@ def create_post():
     if not user or not user.verify_session_token(session_token):
         return failure_response("Invalid session token")
     
-    post = Post(
-        title=title,
-        item=item,
-        status=status,
-        text=text,
-        location=location,
-        timestamp=timestamp,
-        user_id=user.id
-    )
+    if image is not None:
+        asset = Asset(image_data=image)
+        db.session.add(asset)
+        post = Post(
+            title=title,
+            image=asset,
+            item=item,
+            status=status,
+            text=text,
+            location=location,
+            timestamp=timestamp,
+            user_id=user.id
+        )
+    else:
+        post = Post(
+            title=title,
+            image=None,
+            item=item,
+            status=status,
+            text=text,
+            location=location,
+            timestamp=timestamp,
+            user_id=user.id
+        )
     db.session.add(post)
     db.session.commit()
     return success_response(post.serialize(), 201)
@@ -270,6 +295,7 @@ def edit_post(post_id):
     """
     body = json.loads(request.data)
     title = body.get("title")
+    image = body.get("image")
     item = body.get("item")
     status = body.get("status")
     text = body.get("text")
@@ -301,6 +327,10 @@ def edit_post(post_id):
         post.text = text
     if location is not None:
         post.location = location
+    if image is not None:
+        asset = Asset(image_data=image)
+        post.image = asset
+        db.session.add(asset)
     db.session.commit()
     return success_response(post.serialize())
 
@@ -519,3 +549,6 @@ def get_messages_from_other_user(convo_id):
         return success_response({
             "messages": [m.serialize() for m in conversation.user1_messages]
         })
+    
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
