@@ -107,6 +107,7 @@ Response:
             "name": "Alvaro Deras",
             "username": "aaderas",
             "email": "ad2226@cornell.edu",
+            "pfp": <IMAGE URL (IF USER PROVIDED PFP)>,
             "posts": [<SERIALIZED POST>],
             "conversations": [<SERIALIZED CONVERSATION>]
         },
@@ -127,6 +128,7 @@ Response:
     "name": "Alvaro Deras",
     "username": "aaderas",
     "email": "ad2226@cornell.edu",
+    "pfp": <IMAGE URL (IF USER PROVIDED PFP)>,
     "posts": [<SERIALIZED POST>],
     "conversations": [<SERIALIZED CONVERSATION>]
 }
@@ -148,6 +150,7 @@ Request:
     "name": <USER INPUT (OPTIONAL)>,
     "username": <USER INPUT (OPTIONAL)>,
     "email": <USER INPUT (OPTIONAL)>,
+    "pfp": <USER INPUT (OPTIONAL - MUST BE BASE64 ENCODED)>,
     "password": <USER INPUT (OPTIONAL)>
 }
 ```
@@ -160,6 +163,7 @@ Response:
     "name": <USER INPUT OR PREVIOUS NAME IF NOT PROVIDED>,
     "username": <USER INPUT OR PREVIOUS USERNAME IF NOT PROVIDED>,
     "email": <USER INPUT OR PREVIOUS EMAIL IF NOT PROVIDED>,
+    "pfp": <IMAGE URL OR PREVIOUS IMAGE URL IF NOT PROVIDED>,
     "posts": [<SERIALIZED POST>],
     "conversations": [<SERIALIZED CONVERSATION>]
 }
@@ -186,6 +190,7 @@ Response:
     "name": <NAME> ,
     "username": <USERNAME>,
     "email": <EMAIL>,
+    "pfp": <IMAGE URL>,
     "posts": [<SERIALIZED POST>],
     "conversations": [<SERIALIZED CONVERSATION>]
 }
@@ -221,6 +226,7 @@ Response:
         {
             "id": 1,
             "title": "Found these AirPods",
+            "image": <IMAGE URL (IF IMAGE WAS PROVIDED)>,
             "item": "AirPods",
             "status": "Lost",
             "text": "I found these yesterday - message me if they are yours!",
@@ -247,6 +253,7 @@ Response:
 {
     "id": <ID>,
     "title": <TITLE>,
+    "image": <IMAGE URL (IF IMAGE WAS PROVIDED)>,
     "item" <ITEM>:,
     "status": <STATUS>,
     "text": <TEXT>,
@@ -270,6 +277,7 @@ Request:
 ```json
 {
     "title": <USER INPUT>,
+    "image": <USER INPUT (OPTIONAL - MUST BE BASE64 ENCODED)>,
     "item": <USER INPUT>,
     "status": <USER INPUT>,
     "text": <USER INPUT (OPTIONAL)>,
@@ -283,6 +291,7 @@ Response:
 {
     "id": <ID>,
     "title": <USER INPUT>,
+    "image": <IMAGE URL OR NULL IF NOT PROVIDED>,
     "item": <USER INPUT>,
     "status": <USER INPUT>,
     "text": <USER INPUT OR NULL IF NOT PROVIDED>,
@@ -310,6 +319,7 @@ Request:
 ```json
 {
     "title": <USER INPUT (OPTIONAL)>,
+    "image": <USER UNPUT (OPTIONAL - MUST BE BASE64 ENCODED)>,
     "item": <USER INPUT (OPTIONAL)>,
     "status": <USER INPUT (OPTIONAL)>,
     "text": <USER INPUT (OPTIONAL)>,
@@ -323,6 +333,7 @@ Response:
 {
     "id": <ID>,
     "title": <USER INPUT OR PREVIOUS TITLE IF NOT PROVIDED>,
+    "image": <IMAGE URL OR PREVIOUS IMAGE URL IF NOT PROVIDED>
     "item": <USER INPUT OR PREVIOUS ITEM IF NOT PROVIDED>,
     "status": <USER INPUT OR PREVIOUS STATUS IF NOT PROVIDED>,
     "text": <USER INPUT OR PREVIOUS TEXT IF NOT PROVIDED>,
@@ -347,6 +358,7 @@ Response:
 {
     "id": <ID>,
     "title": <TITLE>,
+    "image": <IMAGE URL>
     "item": <ITEM>,
     "status": <STATUS>,
     "text": <TEXT>,
