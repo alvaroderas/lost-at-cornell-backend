@@ -2,6 +2,10 @@
 
 Values wrapped in `< >` are placeholders for what the field values should be. Also be sure to read the request route carefully when you implement it.
 
+## Deployed Base URL
+
+`http://34.86.144.120/`
+
 ## Expected Functionality
 
 ## User Endpoints
