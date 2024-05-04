@@ -129,6 +129,13 @@ def renew_session():
         "refresh_token": user.refresh_token
     })
 
+@app.route("/")
+def hello_world():
+    """
+    Endpoint for testing
+    """
+    return "Hello, world!"
+
 # User routes
 
 @app.route("/api/users/")
